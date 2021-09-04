@@ -66,7 +66,6 @@ fillUsersArray()
 
 def check_character(id):
     objects = vk_user_session.method('board.getComments',  {'group_id': 118649434, 'topic_id': 47958603})
-    print(str(objects))
     if str(id) in str(objects) : return True
     else: return False
 
@@ -83,7 +82,7 @@ def setCurUserState(id,state):
 
 
 def make_new_playerboard_msg(id,name,side):
-    if check_character(id):
+    if  check_character(id):
         sender(id,"У тебя уже есть персонаж!")
     else:
         message = "1) Имя персонажа :"+ name+ " \n 2) Код персонажа: " + str(id)+ "\n 3) Валюты: ОЗУ - 0, колл - 0 \n 4) Игровой уровень: 1 | Уровень аккаунта : 0 \n 6)Раса: \n 7) Инвентарь:"+"\n 8) Сторона :"+side
@@ -108,13 +107,16 @@ def sender (id,text,keyboard = ""):
         vk_session.method('messages.send', {'user_id': id, 'message': text, 'random_id': 0, 'keyboard': keyboard})
 def getUserCharacter(id):
     for user in Users:
-        if user.id == id:
-            print("")
+        checkUser = User()
+        checkUser.id=id
+        newStr =str(id)[0:]
+        if str(str(user.id)[1:]) == str(newStr):
             return user
-        else:return False
+        else:continue
+    return False
 
 def getUserCharacterString(user):
-    string = "1) Имя: "+user.name +" \n 2)Игровой уровень: "+user.lvl + " | Уровень аккаунта: "+user.accLvl+" \n 3)Сторона: "+user.side
+    string = "1) Имя: "+user.name +" \n 2)Игровой уровень: "+str(user.lvl) + " | Уровень аккаунта: "+str(user.accLvl)+" \n 3)Сторона: "+user.side
     return string
 def displayMenu():
     keyboard = {
@@ -151,26 +153,31 @@ def send_some_mesage(id,text):
           newUser = User();
           newUser.id = id;
           Users.append(newUser)
+          pprint(Users)
+          print("---------------------------------------")
 
   elif text.startswith("Проверить своего персонажа"):
       print("Начинаю проверку")
-      if getUserCharacter(id)!= False:
+      if getUserCharacter(id) != False:
           print("Не пустой")
           sender(id,"Вот твой персонаж: \n"+ getUserCharacterString(getUserCharacter(id)))
-
-
-  elif (text == "Оставить заявку на начисление ОЗУ"):
+          send_some_mesage(id,"Меню")
+      else:
+          print("Пустой")
+  elif (text == "Оставить заявку на начисление ОЗУ💬"):
 
             sender( id, "Оформи заявку по следующей форме и отправь сюда: \n|НАЧИСЛЕНИЕ ОЗУ|\n 1)Имя персонажа\n 2)Кол-во ОЗУ\n 3)Ссылки-подтверждения на заработок ОЗУ")
   elif "|НАЧИСЛЕНИЕ ОЗУ|" in text:
             sender(id,"Отправили твою заявку ответственному человеку. Её рассмотрят в ближайшем времени и обновят данные!")
-            sender(515721924, "Тебе новая заявка на зачисление ОЗУ! \n"+text +"\n пришла от пользователя с id: "+ str(id))
+            sender(515721924, "1 Тебе новая заявка на зачисление ОЗУ! \n"+text +"\n пришла от пользователя с id: "+ str(id))
   else:
             sender( id,"Прости, я не знаю команды: "+text+". Напиши \"Меню\" чтобы перейти вернуться к главному экрану")
 
 
 
 def registration(id,msg='',localstate =''):
+    print(msg)
+    print(localstate)
     if(check_character(id)):
         sender(id, "У тебя уже есть аккаунт!")
         displayMenu()
@@ -192,14 +199,16 @@ def registration(id,msg='',localstate =''):
     if(localstate == "Recieved world"):
            sender(id, "Прекрасно! Интересненько... Как будут звать твоего персонажа?")
            for user in Users:
+                print("Do cycle step")
                 if user.id == id:
-                    if(user.side=="SAO" or user.side=="UW"):
+                    if (user.side == "SAO" or user.side == "UW"):
                         return True
                     else:
                         user.side = msg[5:]
                         return True
                 else:
-                    return False
+                    continue
+           return False
     if(localstate == "Recieved name"):
         keyboard = {
             "one_time": True,
@@ -216,7 +225,7 @@ def registration(id,msg='',localstate =''):
         for user in Users:
             if user.id == id:
                 user.name = msg
-            make_new_playerboard_msg(user.id,user.name,user.side)
+                make_new_playerboard_msg(user.id,user.name,user.side)
 
 
 State = "null"
